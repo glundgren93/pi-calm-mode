@@ -6,7 +6,7 @@ Calm mode hides model tool activity and internal reasoning while leaving the res
 
 ## What it hides
 
-- model tool calls, including pending and completed calls
+- ordinary model tool calls, including pending and completed calls
 - tool arguments, results, errors, diffs, and tool-returned images
 - the `Tool output: expanded/collapsed` toggle status
 - thinking and reasoning blocks
@@ -18,6 +18,7 @@ Calm mode hides model tool activity and internal reasoning while leaving the res
 - the startup header and resource list
 - footer, editor, working indicator, statuses, warnings, and notifications
 - custom extension messages, entries, and widgets
+- subagent runs, results, waits, and intercom/control activity
 - skill, compaction, and branch-summary messages
 - user-invoked `!` / `!!` bash commands and their output
 - explicit selectors, confirmation dialogs, and overlays

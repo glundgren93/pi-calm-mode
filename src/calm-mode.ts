@@ -4,8 +4,14 @@ import {
 	ToolExecutionComponent,
 } from "@earendil-works/pi-coding-agent";
 
-const PATCH_STATE_KEY = Symbol.for("pi-calm-mode.prototype-patches.v3");
+const PATCH_STATE_KEY = Symbol.for("pi-calm-mode.prototype-patches.v4");
 const TOOL_OUTPUT_STATUS = /^Tool output: (?:expanded|collapsed)$/;
+const VISIBLE_SUBAGENT_TOOLS = new Set([
+	"subagent",
+	"subagent_wait",
+	"subagent_supervisor",
+	"intercom",
+]);
 
 interface PatchState {
 	owners: number;
@@ -85,11 +91,20 @@ function installPrototypePatches(): () => void {
 	);
 
 	// ToolExecutionComponent owns the complete model-tool row: pending call,
-	// arguments, result text, errors, diffs, and tool-returned images.
+	// arguments, result text, errors, diffs, and tool-returned images. Preserve
+	// subagent orchestration rows so delegated work and its lifecycle stay visible.
 	restorers.push(
-		replaceMethod(asPrototype(ToolExecutionComponent.prototype), "render", () => function hiddenToolRender() {
-			return [];
-		}),
+		replaceMethod(
+			asPrototype(ToolExecutionComponent.prototype),
+			"render",
+			(previous) => function selectivelyHiddenToolRender(width: unknown) {
+				const toolName = (this as RuntimePrototype).toolName;
+				if (typeof toolName === "string" && VISIBLE_SUBAGENT_TOOLS.has(toolName)) {
+					return previous.call(this, width);
+				}
+				return [];
+			},
+		),
 	);
 
 	// Remove only thinking/reasoning blocks from the renderer's cloned view.

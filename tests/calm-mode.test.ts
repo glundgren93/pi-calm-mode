@@ -82,11 +82,23 @@ describe("calm renderer patches", () => {
 		assert.equal(interactive.setToolsExpanded, originalSetToolsExpanded);
 	});
 
-	it("hides the complete model-tool row", () => {
+	it("hides ordinary model-tool rows but keeps subagent tooling visible", () => {
 		const originalToolRender = ToolExecutionComponent.prototype.render;
 		releases.push(acquireCalmModePatches());
 
 		assert.deepEqual(ToolExecutionComponent.prototype.render.call({} as ToolExecutionComponent, 80), []);
+		for (const toolName of ["subagent", "subagent_wait", "subagent_supervisor", "intercom"]) {
+			const component = new ToolExecutionComponent(
+				toolName,
+				`call-${toolName}`,
+				{},
+				undefined,
+				undefined,
+				{ requestRender: () => {} } as never,
+				process.cwd(),
+			);
+			assert.ok(component.render(80).length > 0, `${toolName} should remain visible`);
+		}
 
 		releases.pop()?.();
 		assert.equal(ToolExecutionComponent.prototype.render, originalToolRender);
