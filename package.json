@@ -1,0 +1,46 @@
+{
+  "name": "pi-calm-mode",
+  "version": "0.1.0",
+  "description": "A quieter Pi TUI mode that hides model tool calls, tool output, thinking, and reasoning while preserving the rest of the interface.",
+  "type": "module",
+  "main": "./index.ts",
+  "files": [
+    "index.ts",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "check": "npm run typecheck && npm test"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "calm-mode",
+    "quiet-tui",
+    "tool-output",
+    "tui"
+  ],
+  "author": "Gabriel Lundgren",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.83.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

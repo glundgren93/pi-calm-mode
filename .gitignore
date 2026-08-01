@@ -1,0 +1,5 @@
+node_modules/
+.pi-subagents/
+coverage/
+*.log
+.DS_Store
