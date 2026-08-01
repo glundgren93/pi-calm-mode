@@ -2,7 +2,7 @@
 
 A quieter display mode for the [Pi coding agent](https://pi.dev).
 
-Calm mode hides model tool activity and internal reasoning while leaving the rest of Pi's interface unchanged.
+Calm mode hides model tool activity and internal reasoning, frames assistant replies in clear response boxes, and leaves the rest of Pi's interface unchanged.
 
 ## What it hides
 
@@ -13,7 +13,7 @@ Calm mode hides model tool activity and internal reasoning while leaving the res
 
 ## What remains visible
 
-- assistant text
+- assistant text in an `assistant`-labelled response box
 - submitted user messages
 - the startup header and resource list
 - footer, editor, working indicator, statuses, warnings, and notifications
@@ -24,6 +24,8 @@ Calm mode hides model tool activity and internal reasoning while leaving the res
 - explicit selectors, confirmation dialogs, and overlays
 
 Calm mode changes presentation only. Tools still execute normally, results still reach the model, and the full conversation remains in session context and session files.
+
+Historical or interrupted assistant turns containing only hidden activity render a neutral `Activity hidden` response box instead of leaving an ambiguous gap between user messages. Subagent-only turns rely on their visible subagent row and do not add this placeholder.
 
 ## Install
 

@@ -9,6 +9,7 @@ import {
 	UserMessageComponent,
 	type ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
+import { visibleWidth } from "@earendil-works/pi-tui";
 import { acquireCalmModePatches } from "../src/calm-mode.ts";
 import calmMode from "../src/extension.ts";
 
@@ -114,12 +115,49 @@ describe("calm renderer patches", () => {
 		], { stopReason: "toolUse" });
 
 		component.updateContent(message);
-		const rendered = component.render(120).join("\n");
+		const lines = component.render(40);
+		const rendered = lines.join("\n");
 
+		assert.match(rendered, /assistant/);
 		assert.match(rendered, /Visible answer/);
+		assert.match(rendered, /╭.*╮/);
+		assert.match(rendered, /╰.*╯/);
+		assert.ok(lines.every((line) => visibleWidth(line) <= 40), "boxed lines must fit the viewport");
 		assert.doesNotMatch(rendered, /secret reasoning/);
 		assert.equal(message.content.length, 3, "the persisted/model message must not be mutated");
 		assert.equal(message.stopReason, "toolUse");
+	});
+
+	it("fills historical hidden-only turns with a neutral assistant placeholder", () => {
+		releases.push(acquireCalmModePatches());
+		const toolOnly = new AssistantMessageComponent();
+		toolOnly.updateContent(assistantMessage([
+			{ type: "toolCall", id: "call-1", name: "bash", arguments: { command: "secret command" } },
+		], { stopReason: "toolUse" }));
+		const toolOnlyOutput = toolOnly.render(60).join("\n");
+
+		assert.match(toolOnlyOutput, /assistant/);
+		assert.match(toolOnlyOutput, /Activity hidden/);
+		assert.doesNotMatch(toolOnlyOutput, /bash|secret command/);
+
+		const reasoningOnly = new AssistantMessageComponent();
+		reasoningOnly.updateContent(assistantMessage([
+			{ type: "thinking", thinking: "private chain of thought" },
+		]));
+		reasoningOnly.invalidate(); // Theme changes rebuild from the filtered renderer view.
+		const reasoningOnlyOutput = reasoningOnly.render(60).join("\n");
+		assert.match(reasoningOnlyOutput, /Activity hidden/);
+		assert.doesNotMatch(reasoningOnlyOutput, /private chain of thought/);
+	});
+
+	it("does not add a hidden-activity placeholder when a subagent row is visible", () => {
+		releases.push(acquireCalmModePatches());
+		const component = new AssistantMessageComponent();
+		component.updateContent(assistantMessage([
+			{ type: "toolCall", id: "call-subagent", name: "subagent", arguments: { agent: "worker" } },
+		], { stopReason: "toolUse" }));
+
+		assert.deepEqual(component.render(60), []);
 	});
 
 	it("preserves normal assistant error rendering after filtering thinking", () => {
