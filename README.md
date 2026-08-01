@@ -8,6 +8,7 @@ Calm mode hides model tool activity and internal reasoning while leaving the res
 
 - model tool calls, including pending and completed calls
 - tool arguments, results, errors, diffs, and tool-returned images
+- the `Tool output: expanded/collapsed` toggle status
 - thinking and reasoning blocks
 
 ## What remains visible

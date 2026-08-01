@@ -4,6 +4,7 @@ import {
 	AssistantMessageComponent,
 	BashExecutionComponent,
 	initTheme,
+	InteractiveMode,
 	ToolExecutionComponent,
 	UserMessageComponent,
 	type ExtensionAPI,
@@ -46,6 +47,41 @@ function assistantMessage(
 }
 
 describe("calm renderer patches", () => {
+	it("suppresses only the tool-expansion status while preserving expansion behavior", () => {
+		const interactive = InteractiveMode.prototype as unknown as Record<string, unknown>;
+		const originalSetToolsExpanded = interactive.setToolsExpanded;
+		releases.push(acquireCalmModePatches());
+		const setToolsExpanded = interactive.setToolsExpanded as (this: Record<string, unknown>, expanded: boolean) => void;
+		const expansionChanges: boolean[] = [];
+		const statuses: string[] = [];
+		const mode = {
+			toolOutputExpanded: true,
+			customHeader: { setExpanded: (expanded: boolean) => expansionChanges.push(expanded) },
+			builtInHeader: undefined,
+			loadedResourcesContainer: {
+				children: [{ setExpanded: (expanded: boolean) => expansionChanges.push(expanded) }],
+			},
+			chatContainer: {
+				children: [
+					{ setExpanded: (expanded: boolean) => expansionChanges.push(expanded) },
+					{},
+				],
+			},
+			showStatus: (message: string) => statuses.push(message),
+		} as unknown as Record<string, unknown>;
+
+		setToolsExpanded.call(mode, false);
+
+		assert.equal(mode.toolOutputExpanded, false);
+		assert.deepEqual(expansionChanges, [false, false, false]);
+		assert.deepEqual(statuses, []);
+		(mode.showStatus as (message: string) => void)("Unrelated status");
+		assert.deepEqual(statuses, ["Unrelated status"]);
+
+		releases.pop()?.();
+		assert.equal(interactive.setToolsExpanded, originalSetToolsExpanded);
+	});
+
 	it("hides the complete model-tool row", () => {
 		const originalToolRender = ToolExecutionComponent.prototype.render;
 		releases.push(acquireCalmModePatches());
