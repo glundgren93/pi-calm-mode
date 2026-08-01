@@ -25,22 +25,32 @@ Calm mode hides model tool activity and internal reasoning while leaving the res
 
 Calm mode changes presentation only. Tools still execute normally, results still reach the model, and the full conversation remains in session context and session files.
 
-## Install from this folder
+## Install
 
-From the repository root:
+Install directly from GitHub—no manual clone is required:
 
 ```bash
-pi install .
+pi install git:github.com/glundgren93/pi-calm-mode
 ```
 
 Then restart Pi or run `/reload`.
 
-Local packages are referenced in place, so edits to this folder take effect after `/reload`.
-
-To disable calm mode, use `pi config`, or run this from the repository root:
+To try calm mode for one Pi run without installing it:
 
 ```bash
-pi remove .
+pi -e git:github.com/glundgren93/pi-calm-mode
+```
+
+Update installed Git packages with:
+
+```bash
+pi update --extensions
+```
+
+To disable calm mode, use `pi config`, or remove the package:
+
+```bash
+pi remove git:github.com/glundgren93/pi-calm-mode
 ```
 
 ## Load order
@@ -55,10 +65,15 @@ Pi does not currently expose public hooks for globally hiding tool rows or filte
 
 ## Development
 
+From a local checkout:
+
 ```bash
 npm install
 npm run check
+pi install .
 ```
+
+Local packages are referenced in place, so edits take effect after `/reload`.
 
 ## License
 
